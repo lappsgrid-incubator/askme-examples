@@ -25,6 +25,7 @@ class Provider extends Worker {
 
         MailBox box = new MailBox(Settings.EXCHANGE, BOX, Settings.HOST) {
             void recv(String json) {
+                println("Recieved a document.")
                 // Generate the ID for this query.
                 String id = UUID.randomUUID().toString()
                 Message message = Serializer.parse(json, Message)

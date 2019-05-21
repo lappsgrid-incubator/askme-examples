@@ -20,17 +20,21 @@ class Manager {
     static final String BOX = 'manager'
 
     void dispatch(PostOffice post) {
+        logger.info("Dispatching queries.")
         ['who', 'what', 'where', 'when', 'why'].each { String word ->
-            logger.debug "Sending $word"
+            logger.info("Sending {}", word)
             Packet packet = new Packet()
             packet.query = word
 
             Message message = new Message().body(packet).route(Provider.BOX)
             post.send(message)
+            sleep(500)
         }
+        logger.info("Dispatched all queries")
     }
 
     void run() {
+        logger.info("Running Manager")
         Object lock = new Object()
         PostOffice post = new PostOffice(Settings.EXCHANGE, Settings.HOST)
 
@@ -40,7 +44,7 @@ class Manager {
         // The Collector will send a message to this mailbox when it has collected all documents for all queries.
         MailBox box = new MailBox(Settings.EXCHANGE, BOX, Settings.HOST) {
             void recv(String message) {
-                logger.info "Manager received: $message"
+                logger.info("Manager received: {}", message)
                 synchronized (lock) {
                     logger.trace "Notify the lock."
                     lock.notify()
@@ -54,9 +58,9 @@ class Manager {
 
         // Wait for our lock to be released.
         synchronized (lock) {
-            logger.trace "Waiting on the lock"
+            logger.debug "Waiting on the lock"
             lock.wait()
-            logger.trace "Done waiting."
+            logger.debug "Done waiting."
         }
 
         logger.debug "Stopping the workers."
@@ -70,6 +74,8 @@ class Manager {
     static void main(String[] args) {
         System.setProperty('RABBIT_USERNAME', 'uploader')
         System.setProperty('RABBIT_PASSWORD', 'mjBh}oEP1IF.MAWb')
+//        System.setProperty('RABBIT_USERNAME', 'rabbit')
+//        System.setProperty('RABBIT_PASSWORD', 'rabbit')
         new Manager().run()
     }
 }
