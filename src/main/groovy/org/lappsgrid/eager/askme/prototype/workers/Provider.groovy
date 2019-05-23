@@ -25,7 +25,7 @@ class Provider extends Worker {
 
         MailBox box = new MailBox(Settings.EXCHANGE, BOX, Settings.HOST) {
             void recv(String json) {
-                println("Recieved a document.")
+                logger.trace("Recieved a document: {}", json)
                 // Generate the ID for this query.
                 String id = UUID.randomUUID().toString()
                 Message message = Serializer.parse(json, Message)
@@ -40,7 +40,7 @@ class Provider extends Worker {
                     ticket.n = i + 1
                     packet.ticket = ticket
                     packet.document = packet.query + " document " + i
-                    logger.trace "Posting ${packet.document}"
+                    logger.debug("Posting {}", packet.document)
                     message = new Message().body(packet).route(Ranker.BOX)
                     post.send(message)
                 }

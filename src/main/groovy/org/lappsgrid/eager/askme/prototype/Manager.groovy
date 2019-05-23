@@ -11,6 +11,9 @@ import org.lappsgrid.rabbitmq.Message
 import org.lappsgrid.rabbitmq.topic.MailBox
 import org.lappsgrid.rabbitmq.topic.PostOffice
 
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+
 /**
  *  The Manager class is responsible for sending queries to the first stage of the pipeline and shutting down all
  *  threads when processing is complete.
@@ -21,8 +24,8 @@ class Manager {
 
     void dispatch(PostOffice post) {
         logger.info("Dispatching queries.")
-        ['who', 'what', 'where', 'when', 'why'].each { String word ->
-            logger.info("Sending {}", word)
+        Settings.DATA.each { String word ->
+            logger.debug("Sending {}", word)
             Packet packet = new Packet()
             packet.query = word
 
@@ -30,38 +33,33 @@ class Manager {
             post.send(message)
             sleep(500)
         }
-        logger.info("Dispatched all queries")
+        logger.debug("Dispatched all queries")
     }
 
     void run() {
         logger.info("Running Manager")
         Object lock = new Object()
         PostOffice post = new PostOffice(Settings.EXCHANGE, Settings.HOST)
-
+        CountDownLatch latch = new CountDownLatch(1)
         List<Worker> workers = [new Provider(), new Ranker(), new Collector() ]
         workers*.start()
 
         // The Collector will send a message to this mailbox when it has collected all documents for all queries.
         MailBox box = new MailBox(Settings.EXCHANGE, BOX, Settings.HOST) {
             void recv(String message) {
-                logger.info("Manager received: {}", message)
-                synchronized (lock) {
-                    logger.trace "Notify the lock."
-                    lock.notify()
-                    logger.trace "Done."
-                }
+                logger.debug("Manager received: {}", message)
+                latch.countDown()
             }
         }
+        // This delay seem to be necessary or RabbitMQ may lose the first message(s)...
+        sleep(500)
 
         // Send all the queries.
         dispatch(post)
 
-        // Wait for our lock to be released.
-        synchronized (lock) {
-            logger.debug "Waiting on the lock"
-            lock.wait()
-            logger.debug "Done waiting."
-        }
+        // Typically we would want to check the return value of the await() call to determine in the latch reached
+        // zero (true) or if the timeout limit was reached (false).
+        latch.await(5, TimeUnit.SECONDS)
 
         logger.debug "Stopping the workers."
         workers*.stop()
@@ -72,10 +70,6 @@ class Manager {
     }
 
     static void main(String[] args) {
-        System.setProperty('RABBIT_USERNAME', 'uploader')
-        System.setProperty('RABBIT_PASSWORD', 'mjBh}oEP1IF.MAWb')
-//        System.setProperty('RABBIT_USERNAME', 'rabbit')
-//        System.setProperty('RABBIT_PASSWORD', 'rabbit')
         new Manager().run()
     }
 }

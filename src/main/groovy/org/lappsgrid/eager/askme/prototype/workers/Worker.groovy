@@ -23,10 +23,8 @@ abstract class Worker implements Runnable {
     }
 
     void stop() {
-        println "Stopping $name"
         synchronized (lock) {
             lock.notify()
         }
-        println "Stopped $name"
     }
 }

@@ -25,7 +25,7 @@ class Ranker extends Worker {
             void recv(String json) {
                 Message message = Serializer.parse(json, Message)
                 Packet packet = new Packet(message.body)
-                logger.debug "Ranking ${packet.document}"
+                logger.debug("Ranking {}", packet.document)
                 packet.score = random.nextInt(100)
 
                 message = new Message().body(packet).route(Collector.BOX)

@@ -29,7 +29,7 @@ class Collector extends Worker {
                 Message message = Serializer.parse(json, Message)
                 Packet packet = new Packet(message.body)
                 String ticket = packet.ticket.id
-                logger.debug "Collecting ${packet.ticket.n}/${packet.ticket.size} ${packet.document}"
+                logger.trace("Collecting {}: {}", packet.ticket.n, packet.document)
                 List packets = tickets[ticket]
                 if (packets == null) {
                     packets = []
@@ -46,8 +46,8 @@ class Collector extends Worker {
                     println()
                 }
 
-                if (completed == 5) {
-                    logger.info "Terminate the pipeline."
+                if (completed == Settings.DATA.size()) {
+                    logger.info "Processing complete. Terminate the pipeline."
                     message = new Message().body("quit").route(Manager.BOX)
                     post.send(message)
                 }
