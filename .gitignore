@@ -6,3 +6,4 @@
 target/
 
 Version.java
+dependency-reduced-pom.xml

@@ -13,7 +13,7 @@ import org.lappsgrid.serialization.Serializer
  * The Provider service accepts incoming queries and generates between 10 and 20 documents for each.
  */
 @Slf4j("logger")
-class Provider extends Worker {
+class Multiplier extends Worker {
     static final String BOX = 'provider'
 
 

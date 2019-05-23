@@ -1,7 +1,7 @@
 package org.lappsgrid.eager.askme.prototype.workers
 
 /**
- * The Worker class provides a lock object for implementing classes as well as start and stop methods
+ * Base class for pipeline stages.  The Worker class provides a lock object as well as start and stop methods
  */
 abstract class Worker implements Runnable {
     String name = 'Worker'

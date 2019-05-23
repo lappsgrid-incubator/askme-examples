@@ -4,7 +4,7 @@ import groovy.util.logging.Slf4j
 import org.lappsgrid.eager.askme.prototype.core.Packet
 import org.lappsgrid.eager.askme.prototype.core.Settings
 import org.lappsgrid.eager.askme.prototype.workers.Collector
-import org.lappsgrid.eager.askme.prototype.workers.Provider
+import org.lappsgrid.eager.askme.prototype.workers.Multiplier
 import org.lappsgrid.eager.askme.prototype.workers.Ranker
 import org.lappsgrid.eager.askme.prototype.workers.Worker
 import org.lappsgrid.rabbitmq.Message
@@ -29,7 +29,7 @@ class Manager {
             Packet packet = new Packet()
             packet.query = word
 
-            Message message = new Message().body(packet).route(Provider.BOX)
+            Message message = new Message().body(packet).route(Multiplier.BOX)
             post.send(message)
             sleep(500)
         }
@@ -41,7 +41,7 @@ class Manager {
         Object lock = new Object()
         PostOffice post = new PostOffice(Settings.EXCHANGE, Settings.HOST)
         CountDownLatch latch = new CountDownLatch(1)
-        List<Worker> workers = [new Provider(), new Ranker(), new Collector() ]
+        List<Worker> workers = [new Multiplier(), new Ranker(), new Collector() ]
         workers*.start()
 
         // The Collector will send a message to this mailbox when it has collected all documents for all queries.

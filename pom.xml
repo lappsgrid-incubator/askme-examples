@@ -14,6 +14,31 @@
 
     <name>RabbitMQ</name>
     <description>Simplified RabbitMQ</description>
+    <build>
+        <finalName>tickets</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>org.lappsgrid.eager.askme.prototype.Manager</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
     <dependencies>
         <dependency>
             <groupId>org.lappsgrid</groupId>

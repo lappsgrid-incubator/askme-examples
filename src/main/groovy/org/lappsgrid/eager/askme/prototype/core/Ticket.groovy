@@ -5,8 +5,11 @@ package org.lappsgrid.eager.askme.prototype.core
  * document in a query will be numbered.
  */
 class Ticket {
+    /** UUID assigned to the ticket. */
     String id
+    /** Document number. */
     int n
+    /** Total number of documents for this ticket. */
     int size
 
     Ticket() { }
