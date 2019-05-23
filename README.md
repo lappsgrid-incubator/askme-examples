@@ -18,3 +18,12 @@ class Ticket {
     int size
 }
 ```
+
+## Building
+
+This project uses the Maven Shade Plugin to produce an executable JAR file.
+
+```bash
+mvn clean package
+java -jar target/ticket.jar
+```
