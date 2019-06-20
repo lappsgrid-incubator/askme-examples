@@ -1,0 +1,10 @@
+language: groovy
+jvm:
+  - openjdk8
+branches:
+  only:
+    - develop
+    - master
+before_install: wget https://dowloads.lappsgrid.org/scripts/settings.xml
+install: mvn --settings settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -B -V install
+script: mvn --settings settings.xml -Dmaven.javadoc.skip=true -B -V clean test
